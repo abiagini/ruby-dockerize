@@ -1,0 +1,27 @@
+# What image to start from
+FROM ruby:2.7.2 AS rails-toolbox
+
+# Build-time argument variables. Will match with our user and group of the host
+ARG USER_ID
+ARG GROUP_ID
+
+# Will create the group and user
+RUN addgroup --gid $GROUP_ID user
+RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
+
+# Defines env variables and create the directory of the source
+ENV INSTALL_PATH /opt/app
+RUN mkdir -p $INSTALL_PATH
+
+# Install rails and bundler and configure the owner
+RUN gem install rails bundler
+RUN chown -R user:user $INSTALL_PATH
+
+# Defines the current directory on the container
+WORKDIR $INSTALL_PATH
+
+# Change the active user on the container
+USER $USER_ID
+
+# Exec /bin/sh when the container starts
+CMD ["/bin/sh"]
